@@ -16,10 +16,10 @@ builds analytical warehouse tables and views, and presents results in a dashboar
 4. **Transformation:** Dataproc Serverless with PySpark.
 5. **Curated storage:** Google Cloud Storage bucket
    `gs://ride-hailing-analytics-512806-curated/rides/`, partitioned by pickup date.
-6. **Warehouse:** BigQuery datasets `curated_ds` and `mart_ds`, with analytical
-   tables, dimensions, facts, and views to be verified.
-7. **Orchestration:** Cloud Composer/Airflow DAG named `ride_hailing_daily`,
-   to be verified.
+6. **Warehouse:** BigQuery datasets `curated_ds` and `mart_ds`, with curated data and analytical views; fact/dimension implementation details
+   should be checked against the actual warehouse objects.
+7. **Orchestration:** Cloud Composer/Airflow DAG named `ride_hailing_daily`, deployed and
+   manually validated with four successful data quality checks.
 8. **Analytics:** BigQuery ML metrics and Looker Studio dashboard.
 
 ## 3. Data Layers
@@ -43,8 +43,9 @@ pickup hour, average speed and tip percentage, and writes partitioned Parquet.
 - GCS buckets: raw, curated, and staging
 - BigQuery datasets: `raw_ds`, `curated_ds`, `mart_ds`
 - Dataproc Serverless: PySpark batch processing
-- Pub/Sub, Dataflow, and Cloud Composer: ingestion/orchestration components
-  whose working implementations must be verified.
+- Pub/Sub and Dataflow: streaming ingestion components still requiring
+  implementation or verification. Cloud Composer DAG validation is documented
+  in `reports/airflow_quality_checks.md`.
 
 ## 6. Current Validation Evidence
 
@@ -57,6 +58,7 @@ pickup hour, average speed and tip percentage, and writes partitioned Parquet.
 
 ## 7. Outstanding Verification
 
-The streaming ingestion pipeline, fact/dimension tables, BQML model and metrics,
-`ride_hailing_daily` DAG, dashboard URL, cost report, demo recording, and rubric
-must be verified or completed before final submission.
+The streaming ingestion pipeline, fact/dimension implementation details, BQML
+model and metrics, dashboard URL, cost report, demo recording, and rubric
+must be verified or completed before final submission. The `ride_hailing_daily`
+DAG has been manually validated; see `reports/airflow_quality_checks.md`.
