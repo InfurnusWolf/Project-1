@@ -1,0 +1,67 @@
+digraph RideHailingAnalytics {
+    graph [
+        label="Ride-Hailing Analytics — GCP Architecture",
+        labelloc=t,
+        fontsize=22,
+        fontname="Arial",
+        rankdir=TB,
+        bgcolor="white",
+        pad=0.3,
+        nodesep=0.45,
+        ranksep=0.65,
+        splines=ortho
+    ];
+
+    node [
+        shape=box,
+        style="rounded,filled",
+        fontname="Arial",
+        fontsize=10,
+        color="#4776A8",
+        fillcolor="#EAF3FB",
+        margin="0.18,0.12"
+    ];
+
+    edge [
+        fontname="Arial",
+        fontsize=9,
+        color="#526579",
+        arrowsize=0.8
+    ];
+
+    source [label="NYC Yellow Taxi Data\nHistorical Parquet + future streaming events",
+            fillcolor="#F3F3F3", color="#777777"];
+
+    raw_gcs [label="Cloud Storage — Raw\nride-hailing-analytics-512806-raw"];
+    raw_bq [label="BigQuery — raw_ds\nExternal table: yellow_tripdata_2022_03"];
+
+    pubsub [label="Pub/Sub\nStreaming events", fillcolor="#FFF2D9", color="#C58B24"];
+    dataflow [label="Dataflow\nStreaming ingestion", fillcolor="#FFF2D9", color="#C58B24"];
+
+    spark [label="Dataproc Serverless\nPySpark cleaning + deduplication"];
+    curated_gcs [label="Cloud Storage — Curated\nPartitioned Parquet by pickup_date"];
+    curated_bq [label="BigQuery — curated_ds\nCurated external/query tables"];
+
+    warehouse [label="BigQuery — mart_ds\nFact + dimension tables\nMart views + BQML metrics"];
+    composer [label="Cloud Composer / Airflow\nride_hailing_daily DAG", fillcolor="#F2EAFE", color="#8A65B5"];
+    dashboard [label="Looker Studio Dashboard\nKPIs • Revenue • Hourly Demand • Zones",
+               fillcolor="#E7F5E9", color="#4A8C58"];
+
+    source -> raw_gcs [label="Historical file"];
+    raw_gcs -> raw_bq [label="External table"];
+    raw_gcs -> spark [label="Read Parquet"];
+    spark -> curated_gcs [label="Clean + partition"];
+    curated_gcs -> curated_bq [label="Query curated data"];
+    curated_bq -> warehouse [label="Model + aggregate"];
+    warehouse -> dashboard [label="Visualize metrics"];
+
+    pubsub -> dataflow [label="Events"];
+    dataflow -> raw_gcs [label="Raw landing"];
+
+    composer -> spark [label="Schedule"];
+    composer -> warehouse [label="Orchestrate"];
+
+    {rank=same; raw_gcs; pubsub}
+    {rank=same; raw_bq; dataflow}
+    {rank=same; curated_gcs; curated_bq}
+}
