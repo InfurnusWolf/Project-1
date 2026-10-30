@@ -48,6 +48,12 @@ def main():
         )
     )
 
+    # Keep only the March 2022 historical reporting period.
+    df = df.filter(
+        (F.to_date("pickup_datetime") >= F.lit("2022-03-01"))
+        & (F.to_date("pickup_datetime") <= F.lit("2022-03-31"))
+    )
+
     # Remove invalid records.
     df = df.filter(
         F.col("pickup_datetime").isNotNull()
@@ -56,7 +62,7 @@ def main():
         & F.col("trip_distance").isNotNull()
         & (F.col("trip_distance") > 0)
         & F.col("fare_amount").isNotNull()
-        & (F.col("fare_amount") > 0)
+        & (F.col("fare_amount") >= 0)
         & F.col("total_amount").isNotNull()
         & (F.col("total_amount") >= 0)
     )
@@ -93,7 +99,7 @@ def main():
     # Exclude implausibly long trips and invalid derived values.
     df = df.filter(
         (F.col("trip_duration_minutes") > 0)
-        & (F.col("trip_duration_minutes") <= 1440)
+        & (F.col("trip_duration_minutes") <= 240)
     )
 
     # Basic data-quality metrics in the application logs.
